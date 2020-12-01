@@ -8,6 +8,11 @@ let ctx = canvas.getContext("2d");
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
 
+window.addEventListener("resize", ()=>{
+    ctx.canvas.width = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+})
+
 let ArrayOfPointer = [];
 
 // Create a Pointer Class
@@ -19,23 +24,23 @@ let ArrayOfPointer = [];
 
 
 
-const fps = 60;
+const fps = 10;
 
 class Pointer{
-    constructor(x, y){
+    constructor(x, y, direction){
         // positon is Going to be a Object with x and y values;
         this.position = this.assignPose(x, y);
         this.radius = 10;
-        this.speed = 1;
+        this.speed = direction;
         this.areaOf = 150;
         this.connectPointer = this.connectPointer.bind(this);
 
         setInterval(() => {
             this.position.x += this.speed;
-            this.position.y += this.speed / 2;
+            // this.position.y += this.speed / 2;
             this.collisionDetection();
             // this.drawPointer();
-        }, 1);
+        }, fps);
     }
     // check if in Other Pointer is in range
     checkRange(ThatPosition){
@@ -61,6 +66,8 @@ class Pointer{
             ctx.beginPath();       // Start a new path
             ctx.moveTo(this.position.x, this.position.y);
             ctx.lineTo(ThatPosition.x, ThatPosition.y);
+            ctx.lineWidth = 0.1;
+            ctx.strokeStyle = "blue";
             ctx.stroke();
         }else{
             return;
@@ -84,8 +91,8 @@ class Pointer{
 
 
 
-for(let i = 0; i < 200; i++){
-    ArrayOfPointer[i] = new Pointer(Math.floor(Math.random() * window.innerWidth),Math.floor(Math.random() * window.innerHeight));
+for(let i = 0; i < window.innerWidth / 10; i++){
+    ArrayOfPointer[i] = new Pointer(Math.floor(Math.random() * window.innerWidth),Math.floor(Math.random() * window.innerHeight), Math.round(Math.random())* 5 - 2.5);
 }
 
 // for(let b = 0; b < ArrayOfPointer.length; b++){
@@ -102,7 +109,7 @@ setInterval(() => {
             ArrayOfPointer[b].connectPointer(ArrayOfPointer[c].position);
         }
     }
-}, 1);
+}, fps);
 
 // function UpdateEverythin(){
 //     for(let b = 0; b < ArrayOfPointer.length; b++){
