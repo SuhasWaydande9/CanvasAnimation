@@ -12,45 +12,103 @@ window.addEventListener("resize",()=>{
     ctx.canvas.height = window.innerHeight;
 })
 
-
-class Person{
+class Astroid{
     constructor(x, y){
-        this.Position = this.assignPos(x,y);
-        this.Destination = this.PlaceToGo();
+        this.x = x,
+        this.y = y
+        this.drawAstro();
         setInterval(()=>{
-            this.drawShape();
-            this.MoveAround();
-        }, 10)
+            this.drawAstro();
+        }, 30)
     }
 
-    PlaceToGo(){
-        return{
-            x:Math.floor(Math.random() * window.innerWidth),
-            y:Math.floor(Math.random() * window.innerHeight)
-        }
-    }
-
-    MoveAround(){
-        this.Position.x += Math.round(Math.random()) * 10 - 5;
-        this.Position.y += Math.round(Math.random()) * 10 - 5;
-    }
-
-
-    assignPos(x, y){
-        return{
-            x:x,
-            y:y
-        }
-    }
-
-    drawShape(){
-        ctx.fillStyle = "blue";
-        ctx.fillRect(this.Position.x, this.Position.y, 5, 5);
-        
+    drawAstro(){
+        ctx.fillStyle = "gray";
+        ctx.fillRect(this.x, this.y, 5, 5);
     }
 }
 
-let me = new Person(window.innerWidth / 2, window.innerHeight /2);
+class Space{
+    Astroids = [];
+    DrawAstroidRain(){
+        for(let i = 0; i < 10; i++){
+            this.Astroids[i] = new Astroid(Math.floor(Math.random() * window.innerWidth), Math.floor(Math.random() * window.innerHeight));
+        }
+    }
+}
 
-// create A Object Class;
-// assign width and height
+class Player{
+    constructor(x, y, w, h){
+        this.x = x,
+        this.y = y,
+        this.width = w,
+        this.height = h
+        this.Space = new Space();
+        this.Space.DrawAstroidRain();
+        this.DrawPlayer();
+        this.Movement();
+
+        setInterval(()=>{
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
+            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+            this.DrawPlayer();
+        }, 30);
+    }
+
+    DrawPlayer(){
+        ctx.fillStyle = "black";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    Movement(){
+        window.addEventListener("keypress", (key)=>{
+            if(this.x > 0 && this.x < window.innerWidth ){
+                if(key.key == "a"){
+                    this.x -= 30;
+                }else if(key.key == "d"){
+                    this.x += 30;
+                }
+            }
+        });
+
+        window.addEventListener("keydown",(key)=>{
+            if(key.key == " "){
+                let a = new Bullet(this.x, this.y);
+            }
+        })
+
+    }
+}
+
+class Bullet{
+    constructor(x, y){
+        this.x = x,
+        this.y = y
+        this.width = 5,
+        this.height = 10
+        this.drawBullet();
+        this.interval = setInterval(()=>{
+            this.drawBullet();
+            this.Movement();
+        }, 30);
+    }
+
+    drawBullet(){
+        ctx.fillStyle = "red";
+        ctx.fillRect(this.x + 50 / 2 - 2.5, this.y, this.width, this.height);
+    }
+
+    Movement(){
+        if(this.y > 0 && this.y < window.innerHeight){
+            this.y -= 10;
+        }else{
+            clearInterval(this.interval);
+            this.x = 0;
+            this.y = 0;
+            this.width = 0;
+            this.height = 0;
+        }
+    }
+}
+
+let GamePlayer = new Player(window.innerWidth / 2, window.innerHeight - 70, 50, 50);

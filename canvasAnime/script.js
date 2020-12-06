@@ -67,7 +67,7 @@ class Pointer{
             ctx.moveTo(this.position.x, this.position.y);
             ctx.lineTo(ThatPosition.x, ThatPosition.y);
             ctx.lineWidth = 0.1;
-            ctx.strokeStyle = "blue";
+            ctx.strokeStyle = "red"
             ctx.stroke();
         }else{
             return;
@@ -102,8 +102,8 @@ for(let i = 0; i < window.innerWidth / 10; i++){
 // }
 
 setInterval(() => {
-    ctx.fillStyle = "rgba(255,255,255,0.3)";
-    ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
     for(let b = 0; b < ArrayOfPointer.length; b++){
         for(let c = 0; c < ArrayOfPointer.length; c++){
             ArrayOfPointer[b].connectPointer(ArrayOfPointer[c].position);
