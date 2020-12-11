@@ -1,3 +1,5 @@
+import Enemy from "./Enemy.js";
+
 /** @type {CanvasRenderingContext2D} */
 const ctx = document.getElementById("canvas").getContext("2d");
 
@@ -11,69 +13,6 @@ window.addEventListener("resize", ()=>{
 
 //-----------------------------------------------------------------------//
 
-// function Main(){
-  // let KeyMap = {
-  //   left: "a",
-  //   right:"d"
-  // }
-
-  // let Player ={
-  //   x: window.innerWidth / 2,
-  //   y: window.innerHeight - 100,
-  //   w: 50,
-  //   h: 50,
-  //   speed: 2,
-  //   direction:null
-  // }
-
-  
-
-  // function Draw(){
-  //   ctx.save();
-  //   // ctx.fillStyle = "rgba(255,255,255,0.5)";
-  //   // ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-  //   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-  //   if(Player.x < 30){
-  //     Player.direction = null;
-  //     Player.x = 32
-  //   }
-
-  //   if(Player.x > ctx.canvas.width - (Player.w + 30)){
-  //     Player.direction = null;
-  //     Player.x = ctx.canvas.width - (Player.w + 32);
-  //   }
-
-  //   if(Player.direction != null){
-  //     if(Player.direction === KeyMap.left){
-  //       Player.x -= Math.cos(Player.x) + Math.PI * Player.speed;
-  //     }
-  //     if(Player.direction === KeyMap.right){
-  //       Player.x += Math.cos(Player.x) + Math.PI * Player.speed;
-  //     }
-  //   }
-
-  //   ctx.restore();
-  //   ctx.fillRect(Player.x, Player.y, Player.w,Player.h);
-
-  //   window.requestAnimationFrame(Draw);
-  // }
-
-  // window.addEventListener("keydown", (key)=>{
-  //   Player.direction = key.key;
-  // });
-
-  // window.addEventListener("keyup", (key)=>{
-  //   if(Player.direction === key.key){
-  //     Player.direction = null;
-  //   }
-  // })
-
-//   window.requestAnimationFrame(Draw);
-// }
-
-// Main();
-
 class Player{
   constructor(){
     this.x = window.innerWidth / 2,
@@ -82,34 +21,84 @@ class Player{
     this.h = 50,
     this.speed = 2,
     this.direction = null,
-    this.fire = false;
+    this.fire = false,
     this.KeyMap = {
       left: "a",
       right: "d"
+    },
+
+    //undefined Variables
+    this.enemies,
+    this.bullets,
+
+    // Bind Functions
+    this.Draw = this.Draw.bind(this),
+    this.Fire = this.Fire.bind(this),
+    this.keyBoardListeners = this.keyBoardListeners.bind(this),
+    
+
+    //Constructor Function Calls
+    this.Fire(),
+    this.keyBoardListeners(),
+    this.AssignEnemies();
+
+    this.num = 0,
+    this.EnemySpawnTimer = setInterval(()=>{
+      if(this.enemies.length > 0){
+        this.enemies[this.num].update();
+        this.num = this.enemies.length - (this.enemies.length - 1);
+      }else{
+        clearTimeout(this.EnemySpawnTimer);
+      }
+    }, 200);
+
+  }
+
+  AssignEnemies(){
+    this.enemies = [];
+    for(let i = 0; i < 10; i++){
+      this.enemies[i] = new Enemy(ctx);
     }
+  }
 
-    this.Draw = this.Draw.bind(this);
+  removeEnemiesFromArray(){
+    for(let enm = 0; enm < this.enemies.length; enm++){
+      if(this.enemies[enm] != null){
+        if(this.enemies[enm].dead){
+        this.enemies.splice(enm, 1);
+      }
+      }
+    }
+  }
 
-    window.addEventListener("keypress", key =>{
+  keyBoardListeners(){
+        window.addEventListener("keydown", (key)=>{
+      if(key.key === "a" || key.key === "d"){
+        this.direction = key.key;
+      }
       if(key.key === " "){
-        let Bull = new Bullet(this.x + this.w / 2, this.y)
+        this.fire = true;
+      }
+    });
+
+    window.addEventListener("keyup", (key)=>{
+      if(this.direction === key.key){
+        this.direction = null;
+      }
+      if(key.key === " "){
+        this.fire = false;
+    }
+    });
+  }
+
+  Fire(){
+    this.bullets = [];
+    setInterval(() => {
+      if(this.fire){
+        let Bull = new Bullet(this.x + this.w / 2, this.y);
         window.requestAnimationFrame(Bull.BulletDraw);
       }
-    })
-
-    
-  window.addEventListener("keydown", (key)=>{
-    if(key.key === "a" || key.key === "d"){
-      this.direction = key.key;
-    }
-  });
-
-  window.addEventListener("keyup", (key)=>{
-    if(this.direction === key.key){
-      this.direction = null;
-    }
-  });
-
+    }, 100);
   }
 
   Draw(){
@@ -137,10 +126,11 @@ class Player{
         this.x += Math.cos(this.x) + Math.PI * this.speed;
       }
     }
+
     ctx.restore();
     ctx.fillRect(this.x, this.y, this.w,this.h);
-
     window.requestAnimationFrame(this.Draw);
+    this.removeEnemiesFromArray();
   }
 
     
